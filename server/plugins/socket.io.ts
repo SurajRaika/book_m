@@ -12,15 +12,20 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
   io.bind(engine);
 
   io.on("connection", (socket) => {
+    const roomId = createNewRoomId();
 
-    // console.log("new client", roomId);
-    socket.on('GenerateRoom', () => {
-      console.log('GenerateRoom');
-      const roomId = socket.handshake.query.roomId || createNewRoomId();
-      // joinRoom(socket, roomId);
-      socket.join(roomId);
-      io.emit('GenerateRoom', roomId);
-    })
+    socket.join(roomId);
+
+    io.to(roomId).emit('GenerateRoom', roomId);
+
+    // // console.log("new client", roomId);
+    // socket.on('GenerateRoom', () => {
+    //   console.log('GenerateRoom');
+    //   const roomId = createNewRoomId();
+    //   // joinRoom(socket, roomId);
+    //   // socket.join(roomId);
+    //   io.emit('GenerateRoom', roomId);
+    // })
 
 
 
@@ -34,7 +39,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
     socket.on('ScannerConnected', (roomId) => {
       console.log('ScannerConnected', roomId);
       // io.sockets.in(data.roomId).emit('BookData', data.isbn);
-      io.sockets.in(roomId).emit('ChangeToEditor');
+      io.to(roomId).emit('ChangeToEditor');
     });
   });
 
@@ -67,5 +72,5 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
 // }
 
 function createNewRoomId() {
-  return new Date().getMilliseconds().toString();
+  return `${new Date().getMilliseconds().toString()}`;
 }

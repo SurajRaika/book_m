@@ -3,11 +3,14 @@ import { socket } from '~/components/socket';
 const router = useRouter()
 const roomId = ref('');
 
+// socket.on('connect', function () {
+//   socket.emit("GenerateRoom");
+// });
 
-socket.on("GenerateRoom", (roomId) => {
-  roomId.value = roomId;
+socket.on("GenerateRoom", (roomId_data) => {
+  console.log("HEEEE",roomId_data);
+  roomId.value = roomId_data;
 });
-socket.emit("GenerateRoom");
 
 
 socket.on("ChangeToEditor", (arg) => {
