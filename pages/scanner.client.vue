@@ -1,15 +1,17 @@
 <script setup>
-import { socket } from '~/components/socket';
+import { io } from "socket.io-client";
 import { onBeforeMount, onMounted } from 'vue'
 
-const roomId = ref(null);
+const roomId = window.location.hash.substring(1);
 const count = ref(0);
-
-
+const socket = io({
+  query: {
+    roomId: roomId
+  }
+});
 
 onBeforeMount(() => {
-  roomId.value = window.location.hash.substring(1);
-  socket.emit('ScannerConnected', roomId.value)
+  socket.emit('ScannerConnected', roomId)
 });
 
 onMounted(() => {
@@ -26,11 +28,14 @@ onMounted(() => {
   ]
   setInterval(() => {
 
-    socket.emit('BookData', { roomId: roomId.value, isbn: booksIsbn[count.value] });
+    socket.emit('BookData', { roomId: roomId, isbn: booksIsbn[count.value] });
     count.value = count.value + 1;
 
   }, 2000);
 
+  socket.on("disconnectdisconnect", (data) => {
+  console.log("disconnect",roomId_data);
+});
 
 });
 
