@@ -15,9 +15,6 @@ onBeforeMount(() => {
 });
 
 onMounted(() => {
-  // const roomId=window.location.hash
-
-
   const booksIsbn = [
     "9780061120084",   // To Kill a Mockingbird
     "9780590353427",   // Harry Potter and the Sorcerer's Stone
@@ -27,21 +24,16 @@ onMounted(() => {
     "9780439023481"    // The Hunger Games
   ]
   setInterval(() => {
-
     socket.emit('BookData', { roomId: roomId, isbn: booksIsbn[count.value] });
     count.value = count.value + 1;
-
   }, 2000);
 
-  socket.on("disconnectdisconnect", (data) => {
-  console.log("disconnect",roomId_data);
+  socket.on("disconnectedEditor", () => {
+    window.close(); // Close the website when disconnected
+  });
 });
-
-});
-
 </script>
 
 <template>sending count
   {{ count }}
-
 </template>
