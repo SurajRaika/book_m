@@ -1,7 +1,5 @@
 <template>
-    <div>
-      Get STartedd
-    </div>
-    <NuxtLink to="/connect" >Preview</NuxtLink>
+  adad
+
   </template>
   
