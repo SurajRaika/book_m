@@ -19,7 +19,10 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
   io.on("connection", (socket) => {
     // Get roomId from handshake or create a new one
     const roomId = socket.handshake.query.roomId || createNewRoomId();
-
+    socket.rooms.forEach(room => {
+      console.log(room);
+      
+    })
     // Join the room
     socket.join(roomId);
 
@@ -43,7 +46,17 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
 
     // Handle ScannerConnected event
     socket.on('ScannerConnected', (roomId) => {
+      console.log("..................................ScannerConnected");
+      
+      console.log("scannedConnection",roomId);
+      socket.rooms.forEach(room => {
+        console.log(room);
+        
+      })
+
       io.to(roomId).emit('ChangeToEditor');
+      console.log("..................................ScannerConnected");
+
     });
   });
 
