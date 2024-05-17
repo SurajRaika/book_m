@@ -1,4 +1,4 @@
-<script setup>
+<script setup >
 import { io } from "socket.io-client";
 import { ref, computed, onBeforeMount, onMounted } from "vue";
 import { QrcodeStream } from "vue-qrcode-reader";
@@ -14,12 +14,15 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const roomId = window.location.hash.substring(1);
+
+const result = ref("");
 const socket = io({
   query: {
     roomId: roomId,
   },
 });
-const result = ref("");
+
+socket.emit("ScannerConnected", roomId);
 
 const selectedDevice = ref(null);
 const devices = ref([]);
@@ -37,16 +40,10 @@ const barcodeFormats = ref({
 
 const error = ref("");
 
-
-
 const selectedBarcodeFormats = computed(() => {
   return Object.keys(barcodeFormats.value).filter(
     (format) => barcodeFormats.value[format]
   );
-});
-
-onBeforeMount(() => {
-  socket.emit("ScannerConnected", roomId);
 });
 
 onMounted(async () => {
@@ -68,7 +65,12 @@ onMounted(async () => {
 });
 
 function onDetect(detectedCodes) {
-  socket.emit("BookData", { roomId: roomId, isbn: detectedCodes });
+  // detectedCodes = json.loads(detectedCodes);
+  detectedCodes.map((code) => {
+    socket.emit("BookData", { roomId: roomId, isbn: code.rawValue });
+    
+  });
+
 
   console.log(detectedCodes);
   result.value = JSON.stringify(detectedCodes.map((code) => code.rawValue));
@@ -121,7 +123,9 @@ function onError(err) {
 
 <template>
   <div>
-    <div class="fixed top-0 left-0 w-full flex justify-center items-center m-2 z-30">
+    <div
+      class="fixed top-0 left-0 w-full flex justify-center items-center m-2 z-30"
+    >
       <span class="backdrop-blur-sm bg-[#ffffff07] rounded-sm w-10/12">
         <Select v-model="selectedDevice">
           <SelectTrigger>
@@ -132,7 +136,12 @@ function onError(err) {
           <SelectContent>
             <SelectGroup>
               <!-- <SelectLabel>Fruits</SelectLabel> -->
-              <SelectItem v-for="device in devices" :key="device.label" :value="device" v-if="devices.length !== 0">
+              <SelectItem
+                v-for="device in devices"
+                :key="device.label"
+                :value="device"
+                v-if="devices.length !== 0"
+              >
                 {{ device.label }}
               </SelectItem>
               <SelectItem v-else> No Camera </SelectItem>
@@ -151,13 +160,24 @@ function onError(err) {
     
     </div> -->
     <div class="relative w-screen h-screen">
-      <qrcode-stream :constraints="{ deviceId: selectedDevice.deviceId }" :track="trackFunctionSelected.value"
-        :formats="selectedBarcodeFormats" @error="onError" @detect="onDetect" v-if="selectedDevice !== null" />
+      <qrcode-stream
+        :constraints="{ deviceId: selectedDevice.deviceId }"
+        :track="trackFunctionSelected.value"
+        :formats="selectedBarcodeFormats"
+        @error="onError"
+        @detect="onDetect"
+        v-if="selectedDevice !== null"
+      />
       <p v-else class="error">No cameras on this device</p>
     </div>
 
-    <div class="fixed bottom-0 left-0 w-full flex justify-center items-center m-2 z-30">
-      <span v-if="error" class="backdrop-blur-sm bg-[#ffffff07] rounded-sm w-10/12">
+    <div
+      class="fixed bottom-0 left-0 w-full flex justify-center items-center m-2 z-30"
+    >
+      <span
+        v-if="error"
+        class="backdrop-blur-sm bg-[#ffffff07] rounded-sm w-10/12"
+      >
         <Alert variant="destructive">
           <AlertCircle class="w-4 h-4" />
           <AlertTitle>Error</AlertTitle>
