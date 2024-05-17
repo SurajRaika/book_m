@@ -8,7 +8,7 @@ export default defineNuxtConfig({
 
   routeRules: {
     // Homepage pre-rendered at build time
-    // '/scanner': { prerender: true },
+    '/scanner': { prerender: true },
   },
 
   devtools: { enabled: true },
